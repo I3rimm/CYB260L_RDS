@@ -1,14 +1,38 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: Amazon Relational Database Service (RDS) Instance Template
+# Description: Added RDS database resource to the existing VPC CloudFormation template
+# Revision: 1
+# Date: 2026-05-09#
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Amazon Elastic Compute Cloud (EC2) Template
+
+Parameters:
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+
 Resources:
   RdsInstance:
     Type: AWS::RDS::DBInstance
     Properties:
       VPCSecurityGroups:
-      - <SECURITY-GROUP-ID>
+        - <SECURITY-GROUP-ID>
       AllocatedStorage: '5'
       DBInstanceClass: db.t3.micro
       DBInstanceIdentifier: playground-db
       Engine: MySQL
       MasterUsername: Admin
       MasterUserPassword: CloudAcademy123!
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      KeyName: !Ref AWS::AccountId
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdm
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: false
+            VolumeSize: 20
